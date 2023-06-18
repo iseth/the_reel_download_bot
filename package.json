@@ -3,7 +3,6 @@
 		"axios": "^1.4.0",
 		"telegraf": "^4.12.2"
 	},
-	"type": "module",
 	"scripts": {
 		"start": "node index.js"
 	},

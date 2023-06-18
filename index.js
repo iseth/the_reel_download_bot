@@ -1,17 +1,28 @@
-// const { Telegraf } = require('telegraf');
-// const { message } = require('telegraf/filters');
-import { Telegraf } from 'telegraf';
-import { message } from 'telegraf/filters';
-import axios from 'axios';
+const { Telegraf, Extra } = require('telegraf');
+// import { message } from 'telegraf/filters';
+const axios = require('axios');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start((ctx) => ctx.reply('Welcome'));
 bot.help((ctx) => ctx.reply('Send me a sticker'));
 
+bot.on('forwardedMessage', (ctx) => {
+  if (ctx.message.text.includes("reel/")) {
+    download_video_form_message(message);
+  }
+});
+
 bot.on('message', (ctx) => {
-  // ctx.reply(ctx.message.text);
-  // send get request to api
+  if (ctx.message.text.includes("reel/")) {
+    download_video_form_message(ctx);
+  }
+});
+
+bot.launch();
+
+function download_video_form_message(ctx) {
   let reel_id = ctx.message.text.split("reel/")[1].split(" ")[0].slice(0,11);
+
   console.log(reel_id);
   const headers = {
     'x-rapidapi-key': process.env.RAPID_API_KEY,
@@ -33,9 +44,7 @@ bot.on('message', (ctx) => {
   .catch(error => {
     console.error(error);
   });
-});
-
-bot.launch();
+}
 
 function get_video_url(url) {
   return url.data[0]["items"][0]["video_versions"][0]["url"]
