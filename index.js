@@ -20,6 +20,17 @@ bot.on('message', (ctx) => {
 
 bot.launch();
 
+function bytesToMB(bytes) {
+  const megabytes = bytes / (1024 * 1024)
+  return megabytes.toFixed(2)
+}
+
+async function getVideoSize(url) {
+  const response = await axios.head(url)
+  const size = response.headers['content-length']
+  return size
+}
+
 function download_video_form_message(ctx) {
   let reel_id = ctx.message.text.split("reel/")[1].split(" ")[0].slice(0,11);
 
@@ -35,11 +46,16 @@ function download_video_form_message(ctx) {
 
     ctx.reply(`Downloading ${reel_id} ...`);
 
-    axios.get(video_url, { responseType: 'stream' }).then(video_response => {
-      ctx.replyWithVideo({ source: video_response.data });
-    });
-
-    // ctx.reply(video_url);
+    getVideoSize(video_url).then(size => {
+      if (bytesToMB(size) < 49) {
+        axios.get(video_url, { responseType: 'stream' }).then(video_response => {
+          ctx.replyWithVideo({ source: video_response.data });
+        });
+      } else {
+        ctx.reply(`Cannot download video because it is ${bytesToMB(size)} MB's which is too big for telegram.`);
+        ctx.reply(video_url);
+      }
+    })
   })
   .catch(error => {
     console.error(error);
