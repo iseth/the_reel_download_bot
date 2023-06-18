@@ -33,7 +33,7 @@ function download_video_form_message(ctx) {
   .then(response => {
     let video_url = get_video_url(response);
 
-    ctx.reply("Downloading...");
+    ctx.reply(`Downloading ${reel_id} ...`);
 
     axios.get(video_url, { responseType: 'stream' }).then(video_response => {
       ctx.replyWithVideo({ source: video_response.data });
